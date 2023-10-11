@@ -7,10 +7,10 @@ from bamread.src.bamread import _bamread, _bamread_all  # type: ignore
 
 
 def read_bam(
-    f: Path, mapq: int = 0, required_flag: int = 0, filter_flag: int = 1540
+    f: Path, mapq: int = 0, required_flag: int = 0, filter_flag: int = 1540, chrom: str = ""
 ) -> pd.DataFrame:
     chromosomes, starts, ends, strands, flags, chrmap = _bamread(
-        f, mapq, required_flag, filter_flag
+        f, mapq, required_flag, filter_flag, chrom
     )
 
     chromosomes, ends, flags, starts, strands = _create_series(
@@ -40,7 +40,7 @@ def _create_series(
 
 
 def read_bam_full(
-    f: Path, mapq: int = 0, required_flag: int = 0, filter_flag: int = 1540
+    f: Path, mapq: int = 0, required_flag: int = 0, filter_flag: int = 1540, chrom: str = ""
 ) -> pd.DataFrame:
     (
         chromosomes,
@@ -55,7 +55,7 @@ def read_bam_full(
         query_sequences,
         cigarstrings,
         query_qualities,
-    ) = _bamread_all(f, mapq, required_flag, filter_flag)
+    ) = _bamread_all(f, mapq, required_flag, filter_flag, chrom)
 
     chromosomes, ends, flags, starts, strands = _create_series(
         chrmap, chromosomes, ends, flags, starts, strands

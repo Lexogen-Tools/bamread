@@ -14,7 +14,7 @@ from libc.stdint cimport (int8_t, int16_t, int32_t, int64_t, uint16_t,
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.initializedcheck(False)
-cpdef _bamread(filename, uint32_t mapq=0, uint64_t required_flag=0, uint64_t filter_flag=1540):
+cpdef _bamread(filename, uint32_t mapq=0, uint64_t required_flag=0, uint64_t filter_flag=1540, chrom=""):
 
     cdef:
         uint16_t flag
@@ -65,6 +65,9 @@ cpdef _bamread(filename, uint32_t mapq=0, uint64_t required_flag=0, uint64_t fil
         if (flag & filter_flag) != 0:
             continue
 
+        if (a.reference_name != chrom) & (chrom != ""):
+            continue
+
         start = a.reference_start
         end = a.reference_end
 
@@ -90,7 +93,7 @@ cpdef _bamread(filename, uint32_t mapq=0, uint64_t required_flag=0, uint64_t fil
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.initializedcheck(False)
-cpdef _bamread_all(filename, uint32_t mapq=0, uint64_t required_flag=0, uint64_t filter_flag=1540):
+cpdef _bamread_all(filename, uint32_t mapq=0, uint64_t required_flag=0, uint64_t filter_flag=1540, chrom=""):
 
     cdef:
         uint16_t flag
@@ -109,7 +112,11 @@ cpdef _bamread_all(filename, uint32_t mapq=0, uint64_t required_flag=0, uint64_t
     samfile = pysam.AlignmentFile(filename, "rb")
 
     for _ in samfile:
-        count += 1
+        if chrom == "":
+            count += 1
+        else:
+            if _.reference_name == chrom:
+                count += 1
 
     samfile.close()
     samfile = pysam.AlignmentFile(filename, "rb")
@@ -147,6 +154,9 @@ cpdef _bamread_all(filename, uint32_t mapq=0, uint64_t required_flag=0, uint64_t
         if (flag & required_flag) != required_flag:
             continue
         if (flag & filter_flag) != 0:
+            continue
+
+        if (a.reference_name != chrom) & (chrom != ""):
             continue
 
         start = a.reference_start
